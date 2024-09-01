@@ -3,8 +3,17 @@ import styles from "../styles/HomeNoAuth.module.scss";
 import HeaderNoAuth from "@/src/components/homeNoAuth/headerNoAuth";
 import PresentationSection from "@/src/components/homeNoAuth/presentationSection";
 import CardsSection from "@/src/components/homeNoAuth/cardsSection";
+import SlideSection from "@/src/components/homeNoAuth/slideSection";
+import { GetStaticProps } from "next";
+import courseService, { CourseType } from "@/src/services/courseService";
+import { ReactNode } from "react";
 
-const HomeNotAuth = function () {
+interface IndexPageProps {
+  children?: ReactNode;
+  course: CourseType[];
+}
+
+const HomeNotAuth = ({ course }: IndexPageProps) => {
   return (
 		<>
 			<Head>
@@ -19,9 +28,20 @@ const HomeNotAuth = function () {
           <PresentationSection />
         </div>
         <CardsSection />
+        <SlideSection newestCourses={course} />
       </main>
 		</>
   )
+};
+
+export const getStaticProps: GetStaticProps = async () => {
+  const res = await courseService.getNewestCourses();
+  return {
+    props: {
+      course: res.data,
+    },
+    revalidate: 3600 * 24,
+  };
 };
 
 export default HomeNotAuth;
